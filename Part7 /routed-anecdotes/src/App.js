@@ -70,7 +70,11 @@ const App = () => {
         <Route
           path="/create"
           element={
-            <CreateNew addNew={addNew} setNotification={setNotification} />
+            <CreateNew
+              addNew={addNew}
+              setNotification={setNotification}
+              notification={notification}
+            />
           }
         />
       </Routes>
