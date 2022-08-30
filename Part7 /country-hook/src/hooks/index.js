@@ -16,10 +16,11 @@ export const useField = (type) => {
 }
 
 //useCountry custom hook takes in a name
-//it then uses that name passed through to do a fetch to the api endpoint
+//if name exists then
+// uses that name passed through to do a fetch to the api endpoint
 //https://restcountries.com/v3.1/name/{name}?fullText=true
-//then sets country which is initally null
-//to the returned array list of countries
+//then sets country which is initally null to the returned array.data[0] list of countries
+//if there is an error then sets country to null
 export const useCountry = (name) => {
   const [country, setCountry] = useState(null)
 
