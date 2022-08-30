@@ -6,6 +6,10 @@ export const useField = (type) => {
 
   //onChange form handler, to setValue to the targeted inputs value
 
+  const reset = () => {
+    setValue('')
+  }
+
   const onChange = (event) => {
     setValue(event.target.value)
   }
@@ -15,6 +19,7 @@ export const useField = (type) => {
   return {
     type,
     value,
+    reset,
     onChange,
   }
 }

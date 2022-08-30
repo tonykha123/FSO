@@ -3,13 +3,21 @@ import { useNavigate } from 'react-router-dom'
 import { useField } from '../hooks/index'
 
 const CreateNew = ({ addNew, setNotification, notification }) => {
-  // const [content, setContent] = useState('')
-  // const [author, setAuthor] = useState('')
-  // const [info, setInfo] = useState('')
   const navigate = useNavigate()
-  const content = useField('text')
-  const author = useField('text')
-  const info = useField('text')
+  //the usefield hook returns four values, the type, onchange, and value
+  //since the form only uses 3, we can simply take the reset out into its own variable
+  //and spread the rest into the respective fields we need.
+  //So spread takes the remaining props and puts them into own values
+  const { reset: resetContent, ...content } = useField('text')
+  const { reset: resetAuthor, ...author } = useField('text')
+  const { reset: resetInfo, ...info } = useField('text')
+
+  const handleReset = (e) => {
+    e.preventDefault()
+    resetContent()
+    resetAuthor()
+    resetInfo()
+  }
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -28,7 +36,7 @@ const CreateNew = ({ addNew, setNotification, notification }) => {
   return (
     <div>
       <h2>create a new anecdote</h2>
-      <form onSubmit={handleSubmit}>
+      <form>
         <div>
           content
           <input {...content} />
@@ -41,7 +49,8 @@ const CreateNew = ({ addNew, setNotification, notification }) => {
           url for more info
           <input {...info} />
         </div>
-        <button>create</button>
+        <button onClick={handleSubmit}>create</button>
+        <button onClick={handleReset}> reset</button>
       </form>
     </div>
   )
