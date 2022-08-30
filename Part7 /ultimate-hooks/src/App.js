@@ -1,4 +1,5 @@
 import { useResource, useField } from './hooks/index'
+import { useEffect } from 'react'
 
 const App = () => {
   const content = useField('text')
@@ -7,6 +8,16 @@ const App = () => {
 
   const [notes, noteService] = useResource('http://localhost:3005/notes')
   const [persons, personService] = useResource('http://localhost:3005/persons')
+
+  console.log(notes)
+
+  //useEffect only kicks on first render
+  //if no depedency variable then useffect kicks everytime a re render occurs
+
+  useEffect(() => {
+    noteService.getAll()
+    personService.getAll()
+  }, [])
 
   const handleNoteSubmit = (event) => {
     event.preventDefault()
