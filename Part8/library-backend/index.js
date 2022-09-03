@@ -1,5 +1,6 @@
 const { ApolloServer, gql } = require('apollo-server')
-const { books, authors } = require('./db')
+let { books, authors } = require('./db')
+const { v1: uuid } = require('uuid')
 
 const typeDefs = gql`
   type Book {
@@ -20,6 +21,17 @@ const typeDefs = gql`
     authorCount: Int!
     allBooks(author: String, genre: String): [Book!]!
     allAuthors: [Author!]!
+  }
+
+  type Mutation {
+    addBook(
+      title: String!
+      author: String!
+      published: Int!
+      genres: [String!]!
+    ): Book
+
+    editAuthorAge(name: String!, setBornTo: Int!): Author
   }
 `
 const resolvers = {
@@ -67,6 +79,46 @@ const resolvers = {
       //basically this array is an array of number of books by the specific author
 
       books.filter((book) => book.author === parent.name).length,
+  },
+
+  Mutation: {
+    addBook: (parent, args, context) => {
+      //first finds the existing author with the find method
+      //goes over every author and on their name property checks to see if it equals to the passed author argument
+      const existingAuthor = authors.find((a) => a.name === args.author)
+      //if existing Author = true execute this block where it doesnt add a new author
+      if (existingAuthor) {
+        const newBook = { ...args, id: uuid() }
+        //only saves in memory
+        books = books.concat(newBook)
+        return newBook
+      }
+      //run this block if there is no existing author
+      const newBook = { ...args, id: uuid() }
+      const newAuthor = { name: args.author, id: uuid() }
+      authors = authors.concat(newAuthor)
+      books = books.concat(newBook)
+      return newBook
+    },
+
+    editAuthorAge: (parent, args, context) => {
+      const authorToEdit = authors.find((a) => a.name === args.name)
+
+      console.log(authorToEdit, args.name)
+
+      if (!authorToEdit) {
+        return null
+      }
+
+      const updatedAuthor = { ...authorToEdit, born: args.setBornTo }
+      //sets authors array to a new array return from map
+      //goes thru every author if author.name ===args.name then replace the current iterated author with updated author
+      //if not then just make it same
+      authors = authors.map((author) =>
+        author.name === args.name ? updatedAuthor : author
+      )
+      return updatedAuthor
+    },
   },
 }
 
