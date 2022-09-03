@@ -104,7 +104,7 @@ const resolvers = {
     editAuthorAge: (parent, args, context) => {
       const authorToEdit = authors.find((a) => a.name === args.name)
 
-      console.log(authorToEdit, args.name)
+  
 
       if (!authorToEdit) {
         return null
