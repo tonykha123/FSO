@@ -1,8 +1,9 @@
-const Authors = (props) => {
-  if (!props.show) {
+import { useState } from 'react'
+
+const Authors = ({ show, authors }) => {
+  if (!show) {
     return null
   }
-  const authors = []
 
   return (
     <div>
