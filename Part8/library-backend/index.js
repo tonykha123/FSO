@@ -6,6 +6,7 @@ const typeDefs = gql`
   type Book {
     title: String!
     author: String!
+    published: Int!
     genres: [String!]!
     id: ID!
   }
@@ -103,8 +104,6 @@ const resolvers = {
 
     editAuthorAge: (parent, args, context) => {
       const authorToEdit = authors.find((a) => a.name === args.name)
-
-  
 
       if (!authorToEdit) {
         return null

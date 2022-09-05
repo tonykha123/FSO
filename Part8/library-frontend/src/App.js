@@ -2,16 +2,17 @@ import { useState } from 'react'
 import Authors from './components/Authors'
 import Books from './components/Books'
 import NewBook from './components/NewBook'
-import { ALL_AUTHORS } from './queries'
+import { ALL_AUTHORS, ALL_BOOKS } from './queries'
 import { useQuery } from '@apollo/client'
 
 const App = () => {
   const [page, setPage] = useState('authors')
   const result = useQuery(ALL_AUTHORS)
+  const booksResult = useQuery(ALL_BOOKS)
 
   //this is how to handle the first render where result is loading..
   //this block runs if the response is still loading
-  if (result.loading) {
+  if (result.loading && booksResult.loading) {
     return <div>loading...</div>
   }
 
@@ -25,7 +26,7 @@ const App = () => {
 
       <Authors show={page === 'authors'} authors={result.data.allAuthors} />
 
-      <Books show={page === 'books'} />
+      <Books show={page === 'books'} books={booksResult.data.allBooks} />
 
       <NewBook show={page === 'add'} />
     </div>
