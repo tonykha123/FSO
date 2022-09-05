@@ -12,7 +12,11 @@ const App = () => {
 
   //this is how to handle the first render where result is loading..
   //this block runs if the response is still loading
-  if (result.loading && booksResult.loading) {
+  if (
+    (result.loading && booksResult.loading) ||
+    booksResult.loading ||
+    result.loading
+  ) {
     return <div>loading...</div>
   }
 
