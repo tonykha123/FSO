@@ -8,7 +8,7 @@ const Authors = ({ show, authors }) => {
     return null
   }
 
-  const showEditForm = showEdit ? <SetAuthorYear /> : null
+  const showEditForm = showEdit ? <SetAuthorYear authors={authors} /> : null
 
   return (
     <div>

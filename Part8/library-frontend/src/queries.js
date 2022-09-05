@@ -42,3 +42,13 @@ export const CREATE_BOOK = gql`
     }
   }
 `
+
+//the yellow is the function youll be passing back to the mutation
+export const EDIT_AGE = gql`
+  mutation editAuthorAge($name: String!, $setBornTo: Int!) {
+    editAuthorAge(name: $name, setBornTo: $setBornTo) {
+      name
+      born
+    }
+  }
+`
