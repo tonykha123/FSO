@@ -1,11 +1,23 @@
 const { ApolloServer, gql } = require('apollo-server')
-let { books, authors } = require('./db')
 const { v1: uuid } = require('uuid')
+const BooksCollection = require('./models/bookSchema')
+const AuthorsCollection = require('./models/authorSchema')
+const mongoose = require('mongoose')
+require('dotenv').config()
+
+mongoose
+  .connect(process.env.MONGODB_URI)
+  .then(() => {
+    console.log('connected to MongoDB')
+  })
+  .catch((err) => {
+    console.log('error connecting to MongoDB:', err.message)
+  })
 
 const typeDefs = gql`
   type Book {
     title: String!
-    author: String!
+    author: Author!
     published: Int!
     genres: [String!]!
     id: ID!
@@ -37,8 +49,8 @@ const typeDefs = gql`
 `
 const resolvers = {
   Query: {
-    bookCount: () => books.length,
-    authorCount: () => authors.length,
+    bookCount: async () => BooksCollection.collection.countDocuments(),
+    authorCount: async () => AuthorsCollection.collection.countDocuments(),
     allBooks: (parent, args, context) => {
       //the first if statement checks if the author and genre prop exists in the args object.
       //if they exist then return a new array from the filter method
@@ -69,7 +81,7 @@ const resolvers = {
       //if all the if blocks dont go through then returns books
       return books
     },
-    allAuthors: () => authors,
+    allAuthors: async () => AuthorsCollection.find({}),
   },
   Author: {
     bookCount: (parent, args, context) =>
@@ -83,23 +95,23 @@ const resolvers = {
   },
 
   Mutation: {
-    addBook: (parent, args, context) => {
-      //first finds the existing author with the find method
-      //goes over every author and on their name property checks to see if it equals to the passed author argument
-      const existingAuthor = authors.find((a) => a.name === args.author)
-      //if existing Author = true execute this block where it doesnt add a new author
-      if (existingAuthor) {
-        const newBook = { ...args, id: uuid() }
-        //only saves in memory
-        books = books.concat(newBook)
-        return newBook
+    addBook: async (parent, args, context) => {
+      //first finds the existing author by querying DB
+      let author = await AuthorsCollection.findOne({
+        name: args.author,
+      })
+
+      if (!author) {
+        //if there is no existing author, makes a new author with the name as passed argument
+        //if there is existing author, skips this block
+        author = new AuthorsCollection({ name: args.author })
+        await author.save()
       }
-      //run this block if there is no existing author
-      const newBook = { ...args, id: uuid() }
-      const newAuthor = { name: args.author, id: uuid() }
-      authors = authors.concat(newAuthor)
-      books = books.concat(newBook)
-      return newBook
+      //new book is just args, and author is author.id
+      //saves to db
+
+      const newBook = new BooksCollection({ ...args, author: author.id })
+      return newBook.save()
     },
 
     editAuthorAge: (parent, args, context) => {
