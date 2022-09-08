@@ -12,6 +12,6 @@ const schema = new mongoose.Schema({
   },
 })
 
-const AuthorsCollection = mongoose.model('Author', schema)
+const Author = mongoose.model('Author', schema)
 
-module.exports = AuthorsCollection
+module.exports = Author

@@ -1,7 +1,7 @@
-const { ApolloServer, gql } = require('apollo-server')
+const { ApolloServer, gql, UserInputError } = require('apollo-server')
 const { v1: uuid } = require('uuid')
-const BooksCollection = require('./models/bookSchema')
-const AuthorsCollection = require('./models/authorSchema')
+const Book = require('./models/bookSchema')
+const Author = require('./models/authorSchema')
 const mongoose = require('mongoose')
 require('dotenv').config()
 
@@ -49,86 +49,93 @@ const typeDefs = gql`
 `
 const resolvers = {
   Query: {
-    bookCount: async () => BooksCollection.collection.countDocuments(),
-    authorCount: async () => AuthorsCollection.collection.countDocuments(),
-    allBooks: (parent, args, context) => {
-      //the first if statement checks if the author and genre prop exists in the args object.
-      //if they exist then return a new array from the filter method
-      //where for each book it checks if the books.author is equal to args.author
-      //and since the books.genre is an array, we can use the includes method to see if books.genre array includes our passed genre argument
-      if (args.author && args.genre) {
-        return books.filter(
-          (book) =>
-            book.author === args.author && book.genres.includes(args.genre)
-        )
-      }
-
-      //this if block checks to see if the author prop exists in the args obj
-      //if it does exist then it uses the filter method on the books array to return a new
-      //array where for each book it checks to see if that specific book.author is equal to the passed argument
-      //to not strictly equal we can jsut do includes
-      if (args.author) {
-        return books.filter((book) => book.author === args.author)
-      }
-      //the last if block checks to see if the genre prop exists in the args object
-      //if it does exist then it uses the filter method on the books array to return a new array
-      // for each books.genre array it checks to see if it includes the passed genre argument
-      //the filter method returns a new array where all the conditons are met
+    bookCount: async () => Book.collection.countDocuments(),
+    authorCount: async () => Author.collection.countDocuments(),
+    allBooks: async (parent, args, context) => {
+      //the $in in query selects documents where the value of a field is equal to any value in the array
+      //so for this, it finds books that are equal to the genres array passed
+      //Find returns more than one
       if (args.genre) {
-        return books.filter((book) => book.genres.includes(args.genre))
+        return Book.find({ genres: { $in: [args.genre] } }).populate('author')
       }
 
-      //if all the if blocks dont go through then returns books
-      return books
+      if (args.author) {
+        //if there is an argument of author, run existing author block which queries author collections
+        //to find an existing author with the name
+        const existingAuthor = await Author.findOne({
+          name: args.author,
+        })
+        if (existingAuthor) {
+          //if there is an existing author, checks if there is also args.genre
+          if (args.genre) {
+            //if there is also args.author with existing author then
+            //finds all books in the collection that include the passed argument genre
+            //and has the author matching the found author id
+            return await Book.find({
+              author: existingAuthor.id,
+              genres: { $in: [args.genre] },
+            }).populate('author')
+          }
+          //if there is no args.genre then return books collection find
+          //where there are all books with the author mnatching the existing author id.
+          return await Book.find({
+            author: existingAuthor.id,
+          }).populate('author')
+        }
+        //if the passed author argument doesnt match any existing authors, then return null
+        return null
+      }
+
+      //instead of returning the id, the populate method returns the value in reference
+      return await Book.find({}).populate('author')
     },
-    allAuthors: async () => AuthorsCollection.find({}),
+    allAuthors: async () => Author.find({}),
   },
   Author: {
-    bookCount: (parent, args, context) =>
-      //we need a resolver for the Author Schema/type on the bookCount
-      //parent of bookCount is author
-      //returns a new array through the filter method on the books array
-      //for each book sees if the book.author is equal to the parent.name. parent of bookscount is the specific author
-      //basically this array is an array of number of books by the specific author
-
-      books.filter((book) => book.author === parent.name).length,
+    bookCount: async (parent, args, context) =>
+      await Book.find({ author: parent.id }).countDocuments(),
   },
 
   Mutation: {
     addBook: async (parent, args, context) => {
       //first finds the existing author by querying DB
-      let author = await AuthorsCollection.findOne({
+      let author = await Author.findOne({
         name: args.author,
       })
 
       if (!author) {
         //if there is no existing author, makes a new author with the name as passed argument
         //if there is existing author, skips this block
-        author = new AuthorsCollection({ name: args.author })
-        await author.save()
+        author = new Author({ name: args.author })
+        try {
+          await author.save()
+        } catch (error) {
+          throw new UserInputError(error.message, { invalidArgs: args })
+        }
       }
-      //new book is just args, and author is author.id
-      //saves to db
 
-      const newBook = new BooksCollection({ ...args, author: author.id })
-      return newBook.save()
+      const newBook = new Book({ ...args, author: author.id })
+      try {
+        newBook.save()
+      } catch (error) {
+        throw new UserInputError(error.message, { invalidArgs: args })
+      }
+      return newBook
     },
 
-    editAuthorAge: (parent, args, context) => {
-      const authorToEdit = authors.find((a) => a.name === args.name)
+    editAuthorAge: async (parent, args, context) => {
+      const author = await Author.findOne({ name: args.name })
 
-      if (!authorToEdit) {
+      if (!author) {
         return null
       }
-
-      const updatedAuthor = { ...authorToEdit, born: args.setBornTo }
-      //sets authors array to a new array return from map
-      //goes thru every author if author.name ===args.name then replace the current iterated author with updated author
-      //if not then just make it same
-      authors = authors.map((author) =>
-        author.name === args.name ? updatedAuthor : author
-      )
-      return updatedAuthor
+      author.born = args.setBornTo
+      try {
+        //updates the found user
+        await author.save()
+      } catch (error) {
+        throw new UserInputError(error.message, { invalidArgs: args })
+      }
     },
   },
 }
