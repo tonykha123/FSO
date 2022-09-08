@@ -1,9 +1,13 @@
 const { ApolloServer, gql, UserInputError } = require('apollo-server')
-const { v1: uuid } = require('uuid')
 const Book = require('./models/bookSchema')
 const Author = require('./models/authorSchema')
+const User = require('./models/userSchema')
 const mongoose = require('mongoose')
+const jwt = require('jsonwebtoken')
 require('dotenv').config()
+
+const JWT_SECRET = process.env.SECRET
+const PASSWORD = process.env.PASSWORD
 
 mongoose
   .connect(process.env.MONGODB_URI)
@@ -15,6 +19,15 @@ mongoose
   })
 
 const typeDefs = gql`
+  type User {
+    username: String!
+    favouriteGenre: String!
+    id: ID!
+  }
+
+  type Token {
+    value: String!
+  }
   type Book {
     title: String!
     author: Author!
@@ -34,6 +47,7 @@ const typeDefs = gql`
     authorCount: Int!
     allBooks(author: String, genre: String): [Book!]!
     allAuthors: [Author!]!
+    me: User
   }
 
   type Mutation {
@@ -45,6 +59,8 @@ const typeDefs = gql`
     ): Book
 
     editAuthorAge(name: String!, setBornTo: Int!): Author
+    createUser(username: String, favouriteGenres: String!): User
+    login(username: String, password: String!): Token
   }
 `
 const resolvers = {
@@ -137,6 +153,8 @@ const resolvers = {
         throw new UserInputError(error.message, { invalidArgs: args })
       }
     },
+
+    createUser: async () => {},
   },
 }
 
