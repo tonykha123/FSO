@@ -28,15 +28,6 @@ const SetAuthorYear = ({ authors }) => {
       <form>
         <div>
           Author Name
-          <input
-            type="text"
-            value={authorName}
-            onChange={(e) => setAuthorName(e.target.value)}
-          />
-        </div>
-
-        <div>
-          Author Name
           <select
             defaultValue={authors[0].name}
             onChange={(e) => setAuthorName(e.target.value)}
