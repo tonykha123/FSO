@@ -1,4 +1,9 @@
-const { ApolloServer, gql, UserInputError } = require('apollo-server')
+const {
+  ApolloServer,
+  gql,
+  UserInputError,
+  AuthenticationError,
+} = require('apollo-server')
 const Book = require('./models/bookSchema')
 const Author = require('./models/authorSchema')
 const User = require('./models/userSchema')
@@ -59,7 +64,7 @@ const typeDefs = gql`
     ): Book
 
     editAuthorAge(name: String!, setBornTo: Int!): Author
-    createUser(username: String, favouriteGenres: String!): User
+    createUser(username: String, favouriteGenre: String!): User
     login(username: String, password: String!): Token
   }
 `
@@ -67,6 +72,9 @@ const resolvers = {
   Query: {
     bookCount: async () => Book.collection.countDocuments(),
     authorCount: async () => Author.collection.countDocuments(),
+    me: (parent, args, context) => {
+      return context.currentUser
+    },
     allBooks: async (parent, args, context) => {
       //the $in in query selects documents where the value of a field is equal to any value in the array
       //so for this, it finds books that are equal to the genres array passed
@@ -113,11 +121,15 @@ const resolvers = {
   },
 
   Mutation: {
-    addBook: async (parent, args, context) => {
+    addBook: async (parent, args, { currentUser }) => {
       //first finds the existing author by querying DB
       let author = await Author.findOne({
         name: args.author,
       })
+
+      if (!currentUser) {
+        throw new AuthenticationError('Not Authorized, Please login')
+      }
 
       if (!author) {
         //if there is no existing author, makes a new author with the name as passed argument
@@ -139,8 +151,12 @@ const resolvers = {
       return newBook
     },
 
-    editAuthorAge: async (parent, args, context) => {
+    editAuthorAge: async (parent, args, { currentUser }) => {
       const author = await Author.findOne({ name: args.name })
+
+      if (!currentUser) {
+        throw new AuthenticationError('Not Authorized, Please login')
+      }
 
       if (!author) {
         return null
@@ -154,11 +170,45 @@ const resolvers = {
       }
     },
 
-    createUser: async () => {},
+    createUser: async (parent, args, context) => {
+      const user = new User({
+        username: args.username,
+        favouriteGenre: args.favouriteGenre,
+      })
+
+      return user.save().catch((err) => {
+        throw new UserInputError(err.message, { invalidArgs: args })
+      })
+    },
+
+    login: async (parent, args, context) => {
+      const user = await User.findOne({ username: args.username })
+
+      if (!user || args.password !== PASSWORD) {
+        throw new UserInputError(`Wrong Credentials`)
+      }
+      const userForToken = {
+        username: user.username,
+        id: user._id,
+      }
+
+      return { value: jwt.sign(userForToken, JWT_SECRET) }
+    },
   },
 }
 
-const server = new ApolloServer({ typeDefs, resolvers })
+const server = new ApolloServer({
+  typeDefs,
+  resolvers,
+  context: async ({ req }) => {
+    const auth = req ? req.headers.authorization : null
+    if (auth && auth.toLowerCase().startsWith('bearer ')) {
+      const decodedToken = jwt.verify(auth.substring(7), JWT_SECRET)
+      const currentUser = await User.findById(decodedToken.id)
+      return { currentUser }
+    }
+  },
+})
 
 server.listen().then(({ url }) => {
   console.log(`listening on ${url}`)
