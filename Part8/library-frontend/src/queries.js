@@ -22,6 +22,16 @@ export const ALL_BOOKS = gql`
     }
   }
 `
+
+
+export const CURRENT_USER = gql`
+  query {
+    me {
+      favouriteGenre
+      username
+    }
+  }
+`
 //the mutation createBook takes in 5 arguments
 
 //then passing said arguments to the addBook

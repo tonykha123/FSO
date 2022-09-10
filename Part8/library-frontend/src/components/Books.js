@@ -42,6 +42,17 @@ const Books = ({ books, show }) => {
 
       <h3>Filter books by genre</h3>
 
+      <select
+        onChange={(e) => {
+          SetGenre(e.target.value)
+        }}
+      >
+        {genres.map((g) => {
+          return <option value={g}>{g}</option>
+        })}
+        <option value="all">All Genres</option>
+      </select>
+
       {genres.map((g) => (
         <button
           key={g}
