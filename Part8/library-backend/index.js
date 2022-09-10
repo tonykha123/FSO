@@ -61,7 +61,7 @@ const typeDefs = gql`
       author: String!
       published: Int!
       genres: [String!]!
-    ): Book
+    ): Book!
 
     editAuthorAge(name: String!, setBornTo: Int!): Author
     createUser(username: String, favouriteGenre: String!): User
@@ -127,9 +127,9 @@ const resolvers = {
         name: args.author,
       })
 
-      if (!currentUser) {
-        throw new AuthenticationError('Not Authorized, Please login')
-      }
+      // if (!currentUser) {
+      //   throw new AuthenticationError('Not Authorized, Please login')
+      // }
 
       if (!author) {
         //if there is no existing author, makes a new author with the name as passed argument

@@ -1,7 +1,23 @@
+import { useState } from 'react'
+
 const Books = ({ books, show }) => {
+  const [genre, SetGenre] = useState('all')
   if (!show) {
     return null
   }
+
+  //unique values
+  //new set is only unique values
+  //new set takes an array and returns an object of unique values only
+  //spreading takes the object and returns it into individual values
+  //flatmap is the same as map but flattens it out to one value
+  //by putting the results into an array , it divides by the space
+  const genres = [...new Set(books.flatMap((book) => book.genres))]
+  //same a map but flats it out to one level
+
+  const filteredBooks = books.filter((book) =>
+    genre === 'all' ? book : book.genres.includes(genre)
+  )
 
   return (
     <div>
@@ -14,7 +30,7 @@ const Books = ({ books, show }) => {
             <th>author</th>
             <th>published</th>
           </tr>
-          {books.map((a) => (
+          {filteredBooks.map((a) => (
             <tr key={a.title}>
               <td>{a.title}</td>
               <td>{a.author.name}</td>
@@ -23,6 +39,26 @@ const Books = ({ books, show }) => {
           ))}
         </tbody>
       </table>
+
+      <h3>Filter books by genre</h3>
+
+      {genres.map((g) => (
+        <button
+          key={g}
+          onClick={() => {
+            SetGenre(g)
+          }}
+        >
+          {g}
+        </button>
+      ))}
+      <button
+        onClick={() => {
+          SetGenre('all')
+        }}
+      >
+        All Genres
+      </button>
     </div>
   )
 }
