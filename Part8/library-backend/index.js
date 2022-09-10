@@ -26,7 +26,7 @@ mongoose
 const typeDefs = gql`
   type User {
     username: String!
-    favouriteGenre: String!
+    favouriteGenre: String
     id: ID!
   }
 

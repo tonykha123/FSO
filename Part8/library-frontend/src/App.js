@@ -3,7 +3,8 @@ import Authors from './components/Authors'
 import Books from './components/Books'
 import NewBook from './components/NewBook'
 import LoginForm from './components/LoginForm'
-import { ALL_AUTHORS, ALL_BOOKS } from './queries'
+import Recommended from './components/Recommended'
+import { ALL_AUTHORS, ALL_BOOKS, CURRENT_USER } from './queries'
 import { useApolloClient, useQuery } from '@apollo/client'
 
 const App = () => {
@@ -11,14 +12,16 @@ const App = () => {
   const [page, setPage] = useState('authors')
   const result = useQuery(ALL_AUTHORS)
   const booksResult = useQuery(ALL_BOOKS)
+  const userResult = useQuery(CURRENT_USER)
   const client = useApolloClient()
 
   //this is how to handle the first render where result is loading..
   //this block runs if the response is still loading
   if (
-    (result.loading && booksResult.loading) ||
+    (result.loading && booksResult.loading && userResult.loading) ||
     booksResult.loading ||
-    result.loading
+    result.loading ||
+    userResult.loading
   ) {
     return <div>loading...</div>
   }
@@ -32,6 +35,7 @@ const App = () => {
   const loginButtons = token ? (
     <>
       <button onClick={() => setPage('add')}>add book</button>
+      <button onClick={() => setPage('recommended')}>recommended</button>
       <button onClick={logOut}>logout</button>
     </>
   ) : (
@@ -55,6 +59,11 @@ const App = () => {
       <Books show={page === 'books'} books={booksResult.data.allBooks} />
 
       <NewBook show={page === 'add'} />
+      <Recommended
+        show={page === 'recommended'}
+        books={booksResult.data.allBooks}
+        user={userResult.data.me}
+      />
     </div>
   )
 }
