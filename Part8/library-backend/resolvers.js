@@ -3,6 +3,8 @@ const Book = require('./models/bookSchema')
 const Author = require('./models/authorSchema')
 const User = require('./models/userSchema')
 const jwt = require('jsonwebtoken')
+const { PubSub } = require('graphql-subscriptions')
+const pubsub = new PubSub()
 require('dotenv').config()
 
 const JWT_SECRET = process.env.SECRET
@@ -70,6 +72,7 @@ const resolvers = {
       } catch (error) {
         throw new UserInputError(error.message, { invalidArgs: args })
       }
+      pubsub.publish('BOOK_ADDED', { bookAdded: newBook })
       return newBook
     },
 
@@ -115,6 +118,11 @@ const resolvers = {
       }
 
       return { value: jwt.sign(userForToken, JWT_SECRET) }
+    },
+  },
+  Subscription: {
+    bookAdded: {
+      subscribe: () => pubsub.asyncIterator(['BOOK_ADDED']),
     },
   },
 }
