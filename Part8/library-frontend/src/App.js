@@ -4,8 +4,13 @@ import Books from './components/Books'
 import NewBook from './components/NewBook'
 import LoginForm from './components/LoginForm'
 import Recommended from './components/Recommended'
-import { ALL_AUTHORS, ALL_BOOKS, CURRENT_USER } from './queries'
-import { useApolloClient, useQuery } from '@apollo/client'
+import { ALL_AUTHORS, ALL_BOOKS, CURRENT_USER, BOOK_ADDED } from './queries'
+import {
+  useApolloClient,
+  useQuery,
+  useMutation,
+  useSubscription,
+} from '@apollo/client'
 
 const App = () => {
   const [token, setToken] = useState(null)
@@ -17,6 +22,19 @@ const App = () => {
 
   //this is how to handle the first render where result is loading..
   //this block runs if the response is still loading
+
+  const logOut = () => {
+    setToken(null)
+    localStorage.clear()
+    client.resetStore()
+  }
+
+  useSubscription(BOOK_ADDED, {
+    onSubscriptionData: ({ subscriptionData }) => {
+      console.log(subscriptionData)
+    },
+  })
+
   if (
     (result.loading && booksResult.loading && userResult.loading) ||
     booksResult.loading ||
@@ -25,13 +43,6 @@ const App = () => {
   ) {
     return <div>loading...</div>
   }
-
-  const logOut = () => {
-    setToken(null)
-    localStorage.clear()
-    client.resetStore()
-  }
-
   const loginButtons = token ? (
     <>
       <button onClick={() => setPage('add')}>add book</button>

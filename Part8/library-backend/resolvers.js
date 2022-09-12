@@ -57,6 +57,10 @@ const resolvers = {
         name: args.author,
       })
 
+      // if (!currentUser) {
+      //   throw new AuthenticationError('Not Authorized, Please login')
+      // }
+
       if (!author) {
         author = new Author({ name: args.author })
         try {
@@ -66,7 +70,7 @@ const resolvers = {
         }
       }
 
-      const newBook = new Book({ ...args, author: author.id })
+      const newBook = new Book({ ...args, author })
       try {
         newBook.save()
       } catch (error) {
