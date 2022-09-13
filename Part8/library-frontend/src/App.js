@@ -12,6 +12,20 @@ import {
   useSubscription,
 } from '@apollo/client'
 
+export const updateCache = (cache, query, addedBook) => {
+  const uniqByName = (a) => {
+    let seen = new Set()
+    return a.filter((item) => {
+      let k = item.name
+      return seen.has(k) ? false : seen.add(k)
+    })
+  }
+  cache.updateQuery(query, ({ allBooks }) => {
+    return {
+      allBooks: uniqByName(allBooks.concat(addedBook)),
+    }
+  })
+}
 const App = () => {
   const [token, setToken] = useState(null)
   const [page, setPage] = useState('authors')
@@ -32,6 +46,10 @@ const App = () => {
   useSubscription(BOOK_ADDED, {
     onSubscriptionData: ({ subscriptionData }) => {
       console.log(subscriptionData)
+      const addedBook = subscriptionData.data.bookAdded
+      window.alert(`${addedBook.title} by ${addedBook.author.name} added!`)
+
+      updateCache(client.cache, { query: ALL_BOOKS }, addedBook)
     },
   })
 
