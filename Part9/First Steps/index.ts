@@ -1,6 +1,7 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import { parseBmiArgs, bmiCalculator } from './bmiCaclulator';
+import { parseExerciseArgs, calculateExercises } from './exerciseCalculator';
 
 const app = express();
 app.use(bodyParser.json());
@@ -24,6 +25,29 @@ app.get('/bmi', (req, res) => {
       const { value1Weight, value2Height } = parseBmiArgs(height, weight);
       const bmiResult = bmiCalculator(value1Weight, value2Height);
       res.json({ bmiResult });
+    } catch (e) {
+      res.status(400).send({ error: e.message });
+    }
+  }
+});
+
+app.post('/exerciseCalculator', (req, res) => {
+  const { daily_exercises, target } = req.body;
+  if (!daily_exercises || !target) {
+    res.status(400).send({ error: 'missing parameters weight or height' });
+  } else {
+    try {
+      const { value1Target, value2ArrOfDailyExerciseHr } = parseExerciseArgs(
+        daily_exercises,
+        target
+      );
+
+      const exerciseResults = calculateExercises(
+        value1Target,
+        value2ArrOfDailyExerciseHr
+      );
+
+      res.json({ exerciseResults });
     } catch (e) {
       res.status(400).send({ error: e.message });
     }

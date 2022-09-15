@@ -13,19 +13,22 @@ interface exerciseResult {
   average: number;
 }
 
-const parseExerciseArgs = (args: string[]): ExerciseParserResult => {
-  const argsNumbered = args.slice(2).map((i) => Number(i));
-  if (!argsNumbered.some(isNaN)) {
+export const parseExerciseArgs = (
+  dailyExercise: string[],
+  target: string
+): ExerciseParserResult => {
+  const dailyExerciseNumbered = dailyExercise.map((i) => Number(i));
+  if (!dailyExerciseNumbered.some(isNaN)) {
     return {
-      value1Target: argsNumbered[0],
-      value2ArrOfDailyExerciseHr: argsNumbered.splice(1),
+      value1Target: Number(target),
+      value2ArrOfDailyExerciseHr: dailyExerciseNumbered,
     };
   } else {
     throw new Error('Provided values must be a number');
   }
 };
 
-const calculateExercises = (
+export const calculateExercises = (
   targetDailyHours: number,
   arrOfHours: number[]
 ): exerciseResult => {
@@ -70,18 +73,18 @@ const calculateExercises = (
   };
 };
 
-try {
-  //destructures return object from function
-  const { value1Target, value2ArrOfDailyExerciseHr } = parseExerciseArgs(
-    process.argv
-  );
-  console.log(calculateExercises(value1Target, value2ArrOfDailyExerciseHr));
+// try {
+//   //destructures return object from function
+//   const { value1Target, value2ArrOfDailyExerciseHr } = parseExerciseArgs(
+//     process.argv
+//   );
+//   console.log(calculateExercises(value1Target, value2ArrOfDailyExerciseHr));
 
-  // console.log(calculateExercises(value1Target, value2ArrOfDailyExerciseHr))
-} catch (error: unknown) {
-  let errorMessage = 'something went wrong: ';
-  if (error instanceof Error) {
-    errorMessage += `Error: ${error.message}`;
-  }
-  console.log(errorMessage);
-}
+//   // console.log(calculateExercises(value1Target, value2ArrOfDailyExerciseHr))
+// } catch (error: unknown) {
+//   let errorMessage = 'something went wrong: ';
+//   if (error instanceof Error) {
+//     errorMessage += `Error: ${error.message}`;
+//   }
+//   console.log(errorMessage);
+// }
