@@ -1,3 +1,8 @@
+interface ExerciseParserResult {
+  value1Target: number
+  value2ArrOfDailyExerciseHr: Array<number>
+}
+
 interface exerciseResult {
   periodLength: number
   trainingDays: number
@@ -8,11 +13,21 @@ interface exerciseResult {
   average: number
 }
 
-const weeklyExerciseHours = [3, 0, 2, 4.5, 0, 3, 1]
+const parseExerciseArgs = (args: string[]): ExerciseParserResult => {
+  const argsNumbered = args.slice(2).map((i) => Number(i))
+  if (!argsNumbered.some(isNaN)) {
+    return {
+      value1Target: argsNumbered[0],
+      value2ArrOfDailyExerciseHr: argsNumbered.splice(1),
+    }
+  } else {
+    throw new Error('Provided values must be a number')
+  }
+}
 
 const calculateExercises = (
-  arrOfHours: number[],
-  targetDailyHours: number
+  targetDailyHours: number,
+  arrOfHours: number[]
 ): exerciseResult => {
   const periodLength = arrOfHours.length
   const average = arrOfHours.reduce((a, b) => a + b, 0) / periodLength
@@ -51,4 +66,18 @@ const calculateExercises = (
   }
 }
 
-console.log(calculateExercises(weeklyExerciseHours, 2))
+try {
+  //destructures return object from function
+  const { value1Target, value2ArrOfDailyExerciseHr } = parseExerciseArgs(
+    process.argv
+  )
+  console.log(calculateExercises(value1Target, value2ArrOfDailyExerciseHr))
+
+  // console.log(calculateExercises(value1Target, value2ArrOfDailyExerciseHr))
+} catch (error: unknown) {
+  let errorMessage = 'something went wrong: '
+  if (error instanceof Error) {
+    errorMessage += `Error: ${error.message}`
+  }
+  console.log(errorMessage)
+}
