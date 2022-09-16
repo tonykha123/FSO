@@ -4,7 +4,7 @@ export interface DiagnosesEntry {
   latin?: string;
 }
 
-export interface PaitientEntry {
+export interface PatientEntry {
   id: string;
   name: string;
   dateOfBirth: string;
@@ -12,3 +12,5 @@ export interface PaitientEntry {
   gender: string;
   occupation: string;
 }
+
+export type PatientEntryNoSSN = Omit<PatientEntry, 'ssn'>;
