@@ -1,17 +1,33 @@
 import React from 'react';
-interface ContentProps {
-  exerciseName: string;
+import Part from './Part';
+export interface ContentObj {
+  name: string;
   exerciseCount: number;
 }
+interface ContentProps {
+  course: ContentObj[];
+}
 
-const Content = ({ exerciseName, exerciseCount }: ContentProps) => {
+const Content = ({ course }: ContentProps) => {
+  console.log(course);
+
   return (
-    <div>
-      <p>Exercise name :{exerciseName}</p>
-      <p>Exercise Count: {exerciseCount}</p>
-      <p>________________________________________</p>
-    </div>
+    <>
+      <div>
+        {course.map((c) => (
+          <Part name={c.name} exerciseCount={c.exerciseCount} key={c.name} />
+        ))}
+      </div>
+    </>
   );
 };
 
 export default Content;
+
+// {courseParts.map((part) => (
+//   <Content
+//     key={part.name}
+//     name={part.name}
+//     exerciseCount={part.exerciseCount}
+//   />
+// ))}

@@ -22,13 +22,7 @@ const App = () => {
   return (
     <div>
       <Header name={courseName} />
-      {courseParts.map((part) => (
-        <Content
-          key={part.name}
-          exerciseName={part.name}
-          exerciseCount={part.exerciseCount}
-        />
-      ))}
+      <Content course ={courseParts} />
       <Total
         total={courseParts.reduce(
           (carry, part) => carry + part.exerciseCount,
