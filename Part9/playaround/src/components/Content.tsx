@@ -1,21 +1,13 @@
 import React from 'react';
 import Part from './Part';
-export interface ContentObj {
-  name: string;
-  exerciseCount: number;
-}
-interface ContentProps {
-  course: ContentObj[];
-}
+import { ContentProps } from '../types';
 
-const Content = ({ course }: ContentProps) => {
-  console.log(course);
-
+const Content = ({ courseParts }: ContentProps) => {
   return (
     <>
       <div>
-        {course.map((c) => (
-          <Part name={c.name} exerciseCount={c.exerciseCount} key={c.name} />
+        {courseParts.map((part) => (
+          <Part part={part} key={part.name} />
         ))}
       </div>
     </>
@@ -23,11 +15,3 @@ const Content = ({ course }: ContentProps) => {
 };
 
 export default Content;
-
-// {courseParts.map((part) => (
-//   <Content
-//     key={part.name}
-//     name={part.name}
-//     exerciseCount={part.exerciseCount}
-//   />
-// ))}
