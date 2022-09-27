@@ -8,9 +8,7 @@ import { useParams } from "react-router-dom";
 const IndividualPatient = () => {
   const { id } = useParams<{ id: string }>();
   const [{ patients }, dispatch] = useStateValue();
-  if (!id || !patients) return null;
-  const foundPatient = patients[id];
-  if (!foundPatient) return null;
+  if (!id || !patients[id]) return null;
 
   useEffect(() => {
     const fetchSinglePatient = async () => {
@@ -29,11 +27,14 @@ const IndividualPatient = () => {
     void fetchSinglePatient();
   }, []);
 
+  const { name, ssn, occupation, dateOfBirth } = patients[id];
+
   return (
     <div>
-      <h1>Name : {foundPatient.name}</h1>
-      <h3>ssn : {foundPatient.ssn}</h3>
-      <h3> Occupation : {foundPatient.occupation}</h3>
+      <h1>Name : {name}</h1>
+      <h3>ssn : {ssn}</h3>
+      <h3> Occupation : {occupation}</h3>
+      <h3>DOB: {dateOfBirth}</h3>
     </div>
   );
 };
