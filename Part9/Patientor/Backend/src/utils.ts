@@ -47,11 +47,13 @@ const parseOccupation = (occupation: unknown): string => {
 // };
 //typeguard
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const isGender = (param: any): param is Gender => {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   return Object.values(Gender).includes(param);
 };
 
-const parseGender = (gender: any): Gender => {
+const parseGender = (gender: unknown): Gender => {
   if (!gender || !isGender(gender)) {
     throw new Error(`Invalid gender: ${gender}`);
   }
