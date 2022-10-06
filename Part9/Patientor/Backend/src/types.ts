@@ -4,12 +4,12 @@ export interface DiagnosesEntry {
   latin?: string;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export type Entry =
   | HospitalEntry
   | OccupationalHealthcareEntry
   | OccupationalHealthcareEntry
   | HealthCheckEntry;
+
 export interface PatientEntry {
   id: string;
   name: string;
