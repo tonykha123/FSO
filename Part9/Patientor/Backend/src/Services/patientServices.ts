@@ -27,6 +27,8 @@ const findPatientById = (id: string): PatientEntry | undefined => {
   }
   return foundPatientById;
 };
+
+
 const addPatient = (entry: NewPatientEntry): PatientEntry => {
   const newPatient = {
     id: uuid(),

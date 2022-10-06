@@ -1,9 +1,10 @@
-import React, { useEffect } from "react";
-import axios from "axios";
-import { Patient } from "../types";
-import { apiBaseUrl } from "../constants";
-import { useStateValue,updatePatient } from "../state";
-import { useParams } from "react-router-dom";
+import React, { useEffect } from 'react';
+import axios from 'axios';
+import { Patient } from '../types';
+import { apiBaseUrl } from '../constants';
+import { useStateValue, updatePatient } from '../state';
+import { useParams } from 'react-router-dom';
+import Entries from './Entries';
 
 const IndividualPatient = () => {
   const { id } = useParams<{ id: string }>();
@@ -35,6 +36,7 @@ const IndividualPatient = () => {
       <h3>ssn : {ssn}</h3>
       <h3> Occupation : {occupation}</h3>
       <h3>DOB: {dateOfBirth}</h3>
+      <Entries patient={patients[id]} />
     </div>
   );
 };
