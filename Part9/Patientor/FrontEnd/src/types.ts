@@ -1,9 +1,8 @@
 export interface Diagnosis {
-  code: string;
   name: string;
+  code: string;
   latin?: string;
 }
-
 export enum Gender {
   Male = 'male',
   Female = 'female',
@@ -27,25 +26,18 @@ export enum HealthCheckRating {
   'CriticalRisk' = 3,
 }
 
-export interface DiagnosesEntry {
-  code: string;
-  name: string;
-  latin?: string;
-}
-
 export type Entry =
   | HospitalEntry
   | OccupationalHealthcareEntry
   | OccupationalHealthcareEntry
   | HealthCheckEntry;
 
-
 interface BaseEntry {
   id: string;
   description: string;
   date: string;
   specialist: string;
-  diagnosisCodes?: Array<DiagnosesEntry['code']>;
+  diagnosisCodes?: Array<Diagnosis['code']>;
 }
 
 interface HealthCheckEntry extends BaseEntry {

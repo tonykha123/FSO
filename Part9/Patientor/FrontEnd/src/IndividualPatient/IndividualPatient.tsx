@@ -8,7 +8,10 @@ import Entries from './Entries';
 
 const IndividualPatient = () => {
   const { id } = useParams<{ id: string }>();
-  const [{ patients }, dispatch] = useStateValue();
+  const [{ patients, diagnosis }, dispatch] = useStateValue();
+
+
+
   if (!id || !patients[id]) return null;
 
   useEffect(() => {
@@ -36,7 +39,7 @@ const IndividualPatient = () => {
       <h3>ssn : {ssn}</h3>
       <h3> Occupation : {occupation}</h3>
       <h3>DOB: {dateOfBirth}</h3>
-      <Entries patient={patients[id]} />
+      <Entries patient={patients[id]} diagnosis={diagnosis} />
     </div>
   );
 };

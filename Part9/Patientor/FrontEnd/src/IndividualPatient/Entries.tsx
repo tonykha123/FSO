@@ -1,12 +1,12 @@
 import React from 'react';
-import { Patient } from '../types';
+import { Patient, Diagnosis } from '../types';
 interface IProps {
   patient: Patient;
+  diagnosis: { [id: string]: Diagnosis };
 }
 
-const Entries = ({ patient }: IProps) => {
-  console.log(patient, 'from entries');
-
+const Entries = ({ patient, diagnosis }: IProps) => {
+  console.log(diagnosis, 'from entries');
   if (!patient.entries) return <div>LOADING</div>;
 
   const entries = patient.entries.map((e) => (
@@ -14,7 +14,9 @@ const Entries = ({ patient }: IProps) => {
       {e.date} {e.description}
       <ul>
         {e.diagnosisCodes?.map((c) => (
-          <li key={c}>{c}</li>
+          <li key={c}>
+            {c} :{diagnosis[c].name}
+          </li>
         ))}
       </ul>
     </div>
